@@ -1,0 +1,48 @@
+#include <iostream>
+
+using namespace std;
+
+bool isValidSudoku(char board[9][9]) {
+    bool rows[9][9] = {false};  // Rows
+    bool cols[9][9] = {false};  // Columns
+    bool boxes[9][9] = {false}; // 3x3 boxes
+
+    for (int i = 0; i < 9; ++i) {
+        for (int j = 0; j < 9; ++j) {
+            char num = board[i][j];
+            if (num != '.') {
+                int n = num - '1'; // Convert char to index (0-8)
+                int boxIndex = (i / 3) * 3 + (j / 3);
+                
+                // Check row
+                if (rows[i][n]) return false;
+                rows[i][n] = true;
+
+                // Check column
+                if (cols[j][n]) return false;
+                cols[j][n] = true;
+
+                // Check 3x3 box
+                if (boxes[boxIndex][n]) return false;
+                boxes[boxIndex][n] = true;
+            }
+        }
+    }
+    return true;
+}
+
+int main() {
+    char sudokuBoard[9][9] = {
+        {'5', '3', '.', '.', '7', '.', '.', '.', '.'},
+        {'6', '.', '.', '1', '9', '5', '.', '.', '.'},
+        {'.', '9', '8', '.', '.', '.', '.', '6', '.'},
+        {'8', '.', '.', '.', '6', '.', '.', '.', '3'},
+        {'4', '.', '.', '8', '.', '3', '.', '.', '1'},
+        {'7', '.', '.', '.', '2', '.', '.', '.', '6'},
+        {'.', '6', '.', '.', '.', '.', '2', '8', '.'},
+        {'.', '.', '.', '4', '1', '9', '.', '.', '5'},
+        {'.', '.', '.', '.', '8', '.', '.', '7', '9'}
+    };
+    cout << (isValidSudoku(sudokuBoard) ? "Valid" : "Invalid") << endl;  // Output: Valid
+    return 0;
+}
