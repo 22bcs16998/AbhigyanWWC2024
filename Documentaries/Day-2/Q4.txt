@@ -1,0 +1,87 @@
+#include <iostream>
+#include <memory>
+#include <thread>
+#include <chrono>
+#include <mutex>
+
+class Task {
+public:
+    int taskID;
+    int priority;
+    int executionTime; // in milliseconds
+    Task* next;
+
+    Task(int id, int prio, int execTime) : taskID(id), priority(prio), executionTime(execTime), next(nullptr) {}
+};
+
+class TaskScheduler {
+private:
+    Task* head;
+    std::mutex mtx;
+
+public:
+    TaskScheduler() : head(nullptr) {}
+
+    void insertTask(int id, int priority, int execTime) {
+        std::lock_guard<std::mutex> lock(mtx);
+        Task* newTask = new Task(id, priority, execTime);
+        if (!head || head->priority < priority) {
+            newTask->next = head;
+            head = newTask;
+        } else {
+            Task* current = head;
+            while (current->next && current->next->priority >= priority) {
+                current = current->next;
+            }
+            newTask->next = current->next;
+            current->next = newTask;
+        }
+    }
+
+    void completeTask() {
+        std::lock_guard<std::mutex> lock(mtx);
+        if (!head) return;
+        Task* temp = head;
+        head = head->next;
+        std::cout << "Completed Task ID: " << temp->taskID << std::endl;
+        delete temp;
+    }
+
+    void displayTasks() {
+        std::lock_guard<std::mutex> lock(mtx);
+        Task* current = head;
+        std::cout << "Current Task List: ";
+        while (current) {
+            std::cout << "[ID: " << current->taskID << ", Priority: " << current->priority << "] ";
+            current = current->next;
+        }
+        std::cout << std::endl;
+    }
+
+    void runScheduler() {
+        while (true) {
+            if (head) {
+                std::cout << "Running Task ID: " << head->taskID << std::endl;
+                std::this_thread::sleep_for(std::chrono::milliseconds(head->executionTime));
+                completeTask();
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Simulate scheduler delay
+        }
+    }
+};
+
+int main() {
+    TaskScheduler scheduler;
+
+    std::thread schedulerThread(&TaskScheduler::runScheduler, &scheduler);
+
+    scheduler.insertTask(1, 2, 1000);
+    scheduler.insertTask(2, 1, 500);
+    scheduler.insertTask(3, 3, 1500);
+
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    scheduler.insertTask(4, 2, 700);
+
+    schedulerThread.join();
+    return 0;
+}

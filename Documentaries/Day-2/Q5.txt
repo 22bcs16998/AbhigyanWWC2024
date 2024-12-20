@@ -1,0 +1,118 @@
+#include <iostream>
+#include <string>
+
+class Passenger {
+public:
+    std::string name;
+    Passenger* next;
+
+    Passenger(std::string name) : name(name), next(nullptr) {}
+};
+
+class Compartment {
+public:
+    int compartmentID;
+    int totalSeats;
+    int availableSeats;
+    Passenger* passengerList;
+
+    Compartment(int id, int seats) : compartmentID(id), totalSeats(seats), availableSeats(seats), passengerList(nullptr) {}
+
+    bool bookSeat(std::string name) {
+        if (availableSeats > 0) {
+            Passenger* newPassenger = new Passenger(name);
+            newPassenger->next = passengerList;
+            passengerList = newPassenger;
+            availableSeats--;
+            return true;
+        }
+        return false;
+    }
+
+    bool cancelSeat(std::string name) {
+        Passenger* current = passengerList;
+        Passenger* previous = nullptr;
+        while (current) {
+            if (current->name == name) {
+                if (previous) {
+                    previous->next = current->next;
+                } else {
+                    passengerList = current->next;
+                }
+                delete current;
+                availableSeats++;
+                return true;
+            }
+            previous = current;
+            current = current->next;
+        }
+        return false;
+    }
+
+    void displayPassengers() {
+        Passenger* current = passengerList;
+        std::cout << "Compartment " << compartmentID << " Passengers: ";
+        while (current) {
+            std::cout << current->name << " ";
+            current = current->next;
+        }
+        std::cout << std::endl;
+    }
+};
+
+class Train {
+public:
+    int trainID;
+    Compartment* compartments;
+
+    Train(int id, int numCompartments, int seatsPerCompartment) {
+        trainID = id;
+        compartments = new Compartment[numCompartments];
+        for (int i = 0; i < numCompartments; i++) {
+            compartments[i] = Compartment(i + 1, seatsPerCompartment);
+        }
+    }
+
+    ~Train() {
+        delete[] compartments;
+    }
+
+    void bookSeat(int compartmentID, std::string name) {
+        if (compartmentID > 0 && compartmentID <= sizeof(compartments) / sizeof(compartments[0])) {
+            if (compartments[compartmentID - 1].bookSeat(name)) {
+                std::cout << "Seat booked for " << name << " in compartment " << compartmentID << std::endl;
+            } else {
+                std::cout << "No available seats in compartment " << compartmentID << std::endl;
+            }
+        }
+    }
+
+    void cancelSeat(int compartmentID, std::string name) {
+        if (compartmentID > 0 && compartmentID <= sizeof(compartments) / sizeof(compartments[0])) {
+            if (compartments[compartmentID - 1].cancelSeat(name)) {
+                std::cout << "Booking canceled for " << name << " in compartment " << compartmentID << std::endl;
+            } else {
+                std::cout << "Passenger " << name << " not found in compartment " << compartmentID << std::endl;
+            }
+        }
+    }
+
+    void displayCompartmentPassengers(int compartmentID) {
+        if (compartmentID > 0 && compartmentID <= sizeof(compartments) / sizeof(compartments[0])) {
+            compartments[compartmentID - 1].displayPassengers();
+        }
+    }
+};
+
+int main() {
+    Train train(1, 3, 5); // Train with 3 compartments, each with 5 seats
+
+    train.bookSeat(1, "Alice");
+    train.bookSeat(1, "Bob");
+    train.bookSeat(2, "Charlie");
+    train.cancelSeat(1, "Alice");
+    train.displayCompartmentPassengers(1);
+    train.displayCompartmentPassengers(2);
+
+    return 0;
+}
