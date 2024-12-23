@@ -1,9 +1,9 @@
-def minNonZeroProduct(p: int) -> int:
-    MOD = 10**9 + 7
-    max_num = (1 << p) - 1  # 2^p - 1
-    min_product = (max_num * (max_num - 1) // 2) % MOD
-    return min_product
+#include <iostream>
 
-# Example usage
-p = 3
-print(minNonZeroProduct(p))  # Output: 6
+const int MOD = 1e9 + 7;
+
+int minNonZeroProduct(int p) {
+    long long max_num = (1LL << p) - 1;  // 2^p - 1
+    long long min_product = (max_num * (max_num - 1) / 2) % MOD;
+    return min_product;
+}
