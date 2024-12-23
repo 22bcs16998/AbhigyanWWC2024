@@ -1,12 +1,27 @@
-def lastRemaining(n: int) -> int:
-    left_to_right = True
-    remaining = list(range(1, n + 1))
+#include <iostream>
+#include <vector>
 
-    while len(remaining) > 1:
-        if left_to_right:
-            remaining = remaining[1::2]  # Remove first and every other
-        else:
-            remaining = remaining[-1:0:-2]  # Remove last and every other
-        left_to_right = not left_to_right
+int lastRemaining(int n) {
+    bool leftToRight = true;
+    std::vector<int> remaining(n);
+    for (int i = 0; i < n; ++i) {
+        remaining[i] = i + 1;
+    }
 
-    return remaining[0]
+    while (remaining.size() > 1) {
+        std::vector<int> newRemaining;
+        if (leftToRight) {
+            for (int i = 1; i < remaining.size(); i += 2) {
+                newRemaining.push_back(remaining[i]);
+            }
+        } else {
+            for (int i = remaining.size() - 1; i >= 0; i -= 2) {
+                newRemaining.push_back(remaining[i]);
+            }
+        }
+        remaining = newRemaining;
+        leftToRight = !leftToRight;
+    }
+
+    return remaining[0];
+}
