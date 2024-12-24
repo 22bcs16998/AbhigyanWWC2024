@@ -1,0 +1,42 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+struct Transaction {
+    int id;
+    double amount;
+    int frequency;
+    std::string location;
+    double suspiciousnessScore;
+
+    // Constructor
+    Transaction(int id, double amount, int frequency, std::string location)
+        : id(id), amount(amount), frequency(frequency), location(location) {
+        suspiciousnessScore = calculateSuspiciousness();
+    }
+
+    double calculateSuspiciousness() {
+        // Example calculation (this can be more complex)
+        return amount * frequency; // Simplified for demonstration
+    }
+};
+
+bool compareTransactions(const Transaction &a, const Transaction &b) {
+    return a.suspiciousnessScore > b.suspiciousnessScore; // Higher score first
+}
+
+int main() {
+    std::vector<Transaction> transactions = {
+        Transaction(1, 1000, 5, "NY"),
+        Transaction(2, 500, 10, "CA"),
+        Transaction(3, 2000, 2, "TX")
+    };
+
+    std::sort(transactions.begin(), transactions.end(), compareTransactions);
+
+    for (const auto &t : transactions) {
+        std::cout << "Transaction ID: " << t.id << ", Suspiciousness Score: " << t.suspiciousnessScore << std::endl;
+    }
+
+    return 0;
+}
